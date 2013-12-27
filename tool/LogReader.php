@@ -1,17 +1,18 @@
 #!/usr/bin/php
 <?php
-
 require_once 'CallAPI.php';
 
 /**
  * LogReader Class
  * Read squid log file (access.log), get the fist line, store it to DB and finaly delete it (2nd line became the 1st one ans so on..).
- * 
+ *
  * @author Gent
- * 
+ *        
  */
 class LogReader {
-	private static $file = "/var/log/squid3/access.log"; //Log file location
+	private static $caplsul_timeout = 40.0; //in sec (number type : double)
+	private static $uri_pid_log = "log/pid.log";
+	private static $file = "/var/log/squid3/access.log"; // Log file location
 	private $sizebyte = 0;
 	private $size = 0;
 	private $username;
@@ -24,15 +25,31 @@ class LogReader {
 	}
 	/**
 	 * Default constructer
+	 * 
 	 * @param $username
 	 */
 	public function __construct($username) {
 		$this->username = $username;
-		// $this->emptyFile($username);
+		$this->emptyFile($username);
+	}
+	
+	
+	static public function start($username = NULL) {
+		// main --
+		$pid = self::readPID ( self::$uri_pid_log );
+		if (! file_exists ( "/proc/$pid" )) {
+			// process with a pid = $pid is running
+			if (pcntl_fork () === 0) {
+				self::writePID ( self::$uri_pid_log, posix_getpid () );
+				// parent
+				$read = LogReader::getInstance ( $username );
+				$read->run ();
+			}
+		}
 	}
 	
 	/**
-	 *  Executer
+	 * Execute the algo
 	 */
 	public function run() {
 		if (self::$file) {
@@ -41,13 +58,14 @@ class LogReader {
 	}
 	
 	/*
-	 * 
-	*/
+	 *
+	 */
 	/**
 	 * Read fisrt line on $file, store it on DataBase, delete it from $file 2nd line become 1st and so on till $file has no more line...
-	 * @param Logger file name : $file
+	 * 
+	 * @param
+	 *        	Logger file name : $file
 	 */
-	
 	private function follow($file) {
 		while ( true ) {
 			if (($d = $this->read_and_delete_first_line ( $file )) != null) {
@@ -61,7 +79,7 @@ class LogReader {
 					
 					$logDataTest = array (
 							"action" => "get_log_newer_than",
-							"time" => ($line_array [0] - 80.0), // 60 = (1 minutes)
+							"time" => ($line_array [0] - self::$caplsul_timeout), // 60 = (1 minutes)
 							"host" => parse_url ( $line_array [6] )['host'],
 							"username" => $line_array [7] 
 					);
@@ -97,8 +115,9 @@ class LogReader {
 		}
 	}
 	/**
-	 * @param File $filename
-	 * @return NULL|String (line to store)
+	 *
+	 * @param File $filename        	
+	 * @return NULL String to store)
 	 */
 	public function read_and_delete_first_line($filename) {
 		$returnLine = null;
@@ -151,7 +170,9 @@ class LogReader {
 	
 	/**
 	 * Empty the file
-	 * @param File name $file
+	 * 
+	 * @param
+	 *        	File name $file
 	 */
 	public function emptyFile($file) {
 		$f = @fopen ( $file, "r+" );
@@ -164,7 +185,8 @@ class LogReader {
 	}
 	
 	/**
-	 * @param string $chaine
+	 *
+	 * @param string $chaine        	
 	 * @return string
 	 */
 	private function trimUltime($chaine) {
@@ -174,7 +196,9 @@ class LogReader {
 		return $chaine;
 	}
 	/**
-	 * @param Number in byte $bytes
+	 *
+	 * @param
+	 *        	Number in byte $bytes
 	 * @return string
 	 */
 	private function formatSizeUnits($bytes) {
@@ -195,10 +219,11 @@ class LogReader {
 		return $bytes;
 	}
 	/**
-	 * 
-	 * @param TimpeStamp $start_time
-	 * @param TimpeStamp $end_time
-	 * @param string $std_format (optional)
+	 *
+	 * @param TimpeStamp $start_time        	
+	 * @param TimpeStamp $end_time        	
+	 * @param string $std_format
+	 *        	(optional)
 	 * @return string
 	 */
 	private function timerFormat($start_time, $end_time, $std_format = false) {
@@ -227,49 +252,42 @@ class LogReader {
 	public function getSizebyte() {
 		return $this->sizebyte;
 	}
-}
-
-// main --
-$uti_pid_log = "log/pid.log";
-$pid = readPID ( $uti_pid_log );
-if (! file_exists ( "/proc/$pid" )) {
-	// process with a pid = $pid is running
-	if (pcntl_fork () === 0) {
-		writePID ( $uti_pid_log, posix_getpid () );
-		// parent
-		$read = LogReader::getInstance ( "gent" );
-		$read->run ();
+	
+	// aux functions
+	/**
+	 *
+	 * @param $filename to write
+	 * @param number of $pid
+	 */
+	static private function writePID($filename, $pid) {
+		$fh = fopen ( $filename, 'r+' );
+		if ($fh)
+			fseek ( $fh, 0 );
+		else
+			return;
+		fwrite ( $fh, $pid );
+		fclose ( $fh );
+	}
+	
+	/**
+	 *
+	 * @param $filename to read
+	 * @return $pid = 0 if $filename redeable else number of active PID
+	 */
+	static private function readPID($filename) {
+		$pid = 0;
+		$fh = fopen ( $filename, 'r+' );
+		if ($d = fgets ( $fh )) {
+			$pid = $d;
+		}
+		fclose ( $fh );
+		return $pid;
 	}
 }
 
-// aux functions
-/**
- * @param $filename to write
- * @param number of $pid
- */
-function writePID($filename, $pid) {
-	$fh = fopen ( $filename, 'r+' );
-	if ($fh)
-		fseek ( $fh, 0 );
-	else
-		return;
-	fwrite ( $fh, $pid );
-	fclose ( $fh );
-}
 
+//main
 
-/**
- * @param $filename to read
- * @return $pid = 0 if $filename redeable else number of active PID
- */
-function readPID($filename) {
-	$pid = 0;
-	$fh = fopen ( $filename, 'r+' );
-	if ($d = fgets ( $fh )) {
-		$pid = $d;
-	}
-	fclose ( $fh );
-	return $pid;
-}
+$t = LogReader::start();
 
 ?>
