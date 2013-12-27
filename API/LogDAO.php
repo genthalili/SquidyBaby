@@ -63,7 +63,7 @@
     			self::$table,
     			' time >= :time AND username = :username AND url = :url ',
     			array(
-    					'time' => $time,
+    					':time' => $time,
     					':username' => $username,
     					':url' => $host
     			)
