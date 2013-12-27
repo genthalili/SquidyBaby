@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-if (! defined(STDIN)) {
+if (! defined("STDIN")) {
         define("STDIN", fopen("php://stdin", "r"));
 }
 
@@ -24,3 +24,5 @@ while ( $input = fgets(STDIN) ) {
   }
   echo $output;
 }
+
+?>

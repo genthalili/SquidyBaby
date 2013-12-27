@@ -11,13 +11,13 @@ require_once 'CallAPI.php';
  */
 class LogReader {
 	private static $caplsul_timeout = 40.0; //in sec (number type : double)
-	private static $uri_pid_log = "log/pid.log";
+	private static $uri_pid_log = "/var/www/SquidyBaby/tool/log/pid.log";
 	private static $file = "/var/log/squid3/access.log"; // Log file location
 	private $sizebyte = 0;
 	private $size = 0;
 	private $username;
 	private static $instance = NULL;
-	static public function getInstance($username) {
+	static private function getInstance($username) {
 		if (self::$instance === NULL) {
 			self::$instance = new LogReader ( $username );
 		}
@@ -28,7 +28,7 @@ class LogReader {
 	 * 
 	 * @param $username
 	 */
-	public function __construct($username) {
+	private function __construct($username) {
 		$this->username = $username;
 		$this->emptyFile($username);
 	}
@@ -107,8 +107,7 @@ class LogReader {
 						);
 					}
 					
-					echo '<pre>';
-					print_r ( CallAPI::sample ( $logData ) );
+					CallAPI::sample ( $logData );
 				}
 			}
 			usleep ( 100 );
@@ -163,7 +162,7 @@ class LogReader {
 			return $returnLine;
 		} catch ( Exception $exc ) {
 			$file->flock ( LOCK_UN );
-			echo $exc->getTraceAsString ();
+			//echo $exc->getTraceAsString ();
 			return null;
 		}
 	}
@@ -288,6 +287,6 @@ class LogReader {
 
 //main
 
-$t = LogReader::start();
+
 
 ?>
