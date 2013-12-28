@@ -10,22 +10,24 @@
 
 require_once 'LogReader.php';
 
-$reader = LogReader::start ();
+//$reader = LogReader::start ();
 
-// $a = array();
+$a = array();
 
-// $b = array (
-// 				"i" => 1,
-// 				"time" => null 
-// 		);
-// $key="bla";
+$b = array (
+				"i" => 1,
+				"time" => null 
+		);
+$key="bla";
 
-// $a[$key] =$b;
+$a[$key] =$b;
 
-// $a[$key]['time'] = "ok";
+$a[$key]['time'] = "ok";
 
-// $a[$key]['i']++;
+$a[$key]['i']++;
 
-// print_r($a);
+print_r($a);
+
+echo array_search("ok", $a)."\n";
 
 ?>

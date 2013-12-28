@@ -67,7 +67,7 @@ class LogReader {
 	 *        	Logger file name : $file
 	 */
 	private function follow($file) {
-		$index_array= array();
+		$index_array = array ();
 		$last_index = array (
 				"i" => 1,
 				"time" => null 
@@ -83,16 +83,16 @@ class LogReader {
 					/*
 					 * echo '<pre>'; print_r($line_array); echo '</pre>';
 					 */
-					$Cache_Result_Codes = split("/", $line_array [3] );
-					//Note, TCP_ refers to requests on the HTTP port (3128).
-					$TCP_codes = $Cache_Result_Codes[0];
+					$Cache_Result_Codes = split ( "/", $line_array [3] );
+					// Note, TCP_ refers to requests on the HTTP port (3128).
+					$TCP_codes = $Cache_Result_Codes [0];
 					
 					$logDataTest = array (
 							"action" => "get_log_newer_than",
 							"time" => ($line_array [0] - self::$caplsul_timeout), // 60 = (1 minutes)
 							"host" => parse_url ( $line_array [6] )['host'],
 							"username" => $line_array [7],
-							"TCP_codes" => $TCP_codes
+							"TCP_codes" => $TCP_codes 
 					);
 					
 					// if log is in DB newer than n minuts update
@@ -108,21 +108,30 @@ class LogReader {
 						);
 					} else {
 						// empty => create
-						//init
+						
+						// init
 						$user = $line_array [7];
-						if($isFirst){
-							$index_array[$user] = $last_index;
-							
-						}else{
-							
-							//print_r($index_array);
-							//echo $line_array [0]."\n";
-							if(($index_array[$user]["time"] + self::$marge_timeout) <= $line_array [0]){
-								$index_array[$user]["i"]++;
-							}		
+						
+						if (! isset ( $index_array [$user] ["i"] )) {
+							$index_array [$user] ["i"] = 1;
+						}
+						if (! isset ( $index_array [$user] ["time"] )) {
+							$index_array [$user] ["time"] = 0.0;
 						}
 						
-						$index_array[$user]["time"] = $line_array [0]; //last time
+						if (! $isFirst) {
+							
+							// add here other rules
+							if (trim ( $TCP_codes ) != "TCP_DENIED" && $index_array [$user] ["time"] != 0.0 && (($index_array [$user] ["time"] + self::$marge_timeout) <= $line_array [0])) {
+								$index_array [$user] ["i"] ++;
+							}
+						}
+						
+						//
+						
+						if ($TCP_codes != "TCP_DENIED") {
+							$index_array [$user] ["time"] = $line_array [0]; // last time
+						}
 						
 						$logData = array (
 								"action" => "put_log",
@@ -132,10 +141,10 @@ class LogReader {
 								"bytes" => $line_array [4],
 								"url" => parse_url ( $line_array [6] )['host'],
 								"username" => $user,
-								"indexID" => $index_array[$user]["i"] 
+								"indexID" => $index_array [$user] ["i"] 
 						);
-						$isFirst = false;
 						
+						$isFirst = false;
 					}
 					
 					CallAPI::sample ( $logData );
@@ -320,6 +329,6 @@ class LogReader {
 
 // main
 
-//$reader = LogReader::start ();
+// $reader = LogReader::start ();
 
 ?>

@@ -3,7 +3,8 @@
 /*
  * global
  */
-$TIME_MARGE = 5; // in minuts
+require_once 'CallAPI.php';
+
 
 if (! defined ( "STDIN" )) {
 	define ( "STDIN", fopen ( "php://stdin", "r" ) );
@@ -44,8 +45,43 @@ while ( ! feof ( STDIN ) ) {
 		
 		// CallAPI class <-----
 		
+		///TEST
+		$users = array();
+		
+		
+			$stef = array(
+					"action" => "get_member_by_id",
+					"id"=>1
+			);
+			$gent = array(
+					"action" => "get_member_by_id",
+					"id"=>2
+			);
+			
+			
+			$stef = CallAPI::sample($stef);
+			$gent = CallAPI::sample($gent);
+			
+			if($stef->status ==="ok"){
+				$stef=$stef->member;
+			
+			$users[$stef->username] = $stef;
+			
+			}
+			
+			if($gent->status ==="ok"){
+				$gent=$gent->member;
+					
+				$users[$gent->username] = $gent;
+					
+			}
+		
+		
+		//print_r($users);
+		//echo $users[$username]->allow."\n";
+		
 		$ERR_MESSAGE = $clientIP . " " . $url . " " . $ip . " " . $username;
-		if ($username === "gent") {
+		if ( intval($users[$username]->allow) === 0 ) {
 			fwrite ( STDOUT, "ERR message=" . rawurlencode ( $ERR_MESSAGE ) . "\n" ); // deny access
 		} else {
 			fwrite ( STDOUT, "OK\n" ); // allow access
