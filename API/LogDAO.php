@@ -58,14 +58,15 @@
     }
 
     //Get a log
-    public static function getNewerThan($time, $host, $username){
+    public static function getNewerThan($time, $host, $username, $TCP_codes){
     	$log = R::findOne(
     			self::$table,
-    			' time >= :time AND username = :username AND url = :url ',
+    			' time >= :time AND username = :username AND url = :url AND TCP_codes = :TCP_codes',
     			array(
     					':time' => $time,
     					':username' => $username,
-    					':url' => $host
+    					':url' => $host,
+    					':TCP_codes' => $TCP_codes
     			)
     	);
     	if(empty($log)) return false;

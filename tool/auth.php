@@ -29,7 +29,7 @@ while ( !feof(STDIN)  ) {
 			// connection passed
 			
 			// start Logreader
-			//$reader = LogReader::start ();
+			$reader = LogReader::start ();
 			
 			fwrite ( STDOUT,"OK\n");
 		}

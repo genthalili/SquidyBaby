@@ -164,16 +164,17 @@ if (isset ( $_GET ["action"] ) && in_array ( $_GET ["action"], $possible_url )) 
 			break;
 		
 		case 'put_log' :
-			if (isset ( $_GET ["time"] ) && isset ( $_GET ["remotehost"] ) && isset ( $_GET ["bytes"] ) && isset ( $_GET ["url"] ) && isset ( $_GET ["username"] ) && isset ( $_GET ["index"] )) {
+			if (isset ( $_GET ["time"] ) && isset ( $_GET ["TCP_codes"] ) && isset ( $_GET ["remotehost"] ) && isset ( $_GET ["bytes"] ) && isset ( $_GET ["url"] ) && isset ( $_GET ["username"] ) && isset ( $_GET ["indexID"] )) {
 				
 				// get only the necessary parameters
 				$data = array (
 						"time" => $_GET ["time"],
+						"TCP_codes" => $_GET ["TCP_codes"],
 						"remotehost" => $_GET ["remotehost"],
 						"bytes" => $_GET ["bytes"],
 						"url" => $_GET ["url"],
 						"username" => $_GET ["username"],
-						"index" => $_GET ["index"]
+						"indexID" => $_GET ["indexID"]
 				);
 				
 				$id = Resource::put_log ( $data );
@@ -227,9 +228,9 @@ if (isset ( $_GET ["action"] ) && in_array ( $_GET ["action"], $possible_url )) 
 			break;
 		
 		case 'get_log_newer_than' :
-			if (isset ( $_GET ["time"] ) && isset ( $_GET ["username"] ) && isset ( $_GET ["host"] )) {
+			if (isset ( $_GET ["time"] ) && isset ( $_GET ["username"] ) && isset ( $_GET ["host"] )   && isset ( $_GET ["TCP_codes"] )) {
 				
-				$log = Resource::get_log_newer_than ( $_GET ["time"], $_GET ["host"], $_GET ["username"] );
+				$log = Resource::get_log_newer_than ( $_GET ["time"], $_GET ["host"], $_GET ["username"], $_GET ["TCP_codes"]  );
 				
 				if ($log) {
 					

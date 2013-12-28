@@ -83,15 +83,19 @@ class LogReader {
 					/*
 					 * echo '<pre>'; print_r($line_array); echo '</pre>';
 					 */
+					$Cache_Result_Codes = split("/", $line_array [3] );
+					//Note, TCP_ refers to requests on the HTTP port (3128).
+					$TCP_codes = $Cache_Result_Codes[0];
 					
 					$logDataTest = array (
 							"action" => "get_log_newer_than",
 							"time" => ($line_array [0] - self::$caplsul_timeout), // 60 = (1 minutes)
 							"host" => parse_url ( $line_array [6] )['host'],
-							"username" => $line_array [7] 
+							"username" => $line_array [7],
+							"TCP_codes" => $TCP_codes
 					);
 					
-					// if log is in DB newer than 2 minuts update
+					// if log is in DB newer than n minuts update
 					// else create new
 					$logTester = CallAPI::sample ( $logDataTest );
 					
@@ -123,11 +127,12 @@ class LogReader {
 						$logData = array (
 								"action" => "put_log",
 								"time" => $line_array [0],
+								"TCP_codes" => $TCP_codes,
 								"remotehost" => $line_array [2],
 								"bytes" => $line_array [4],
 								"url" => parse_url ( $line_array [6] )['host'],
 								"username" => $user,
-								"index" => $index_array[$user]["i"] 
+								"indexID" => $index_array[$user]["i"] 
 						);
 						$isFirst = false;
 						
