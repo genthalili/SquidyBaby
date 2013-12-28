@@ -164,7 +164,7 @@ if (isset ( $_GET ["action"] ) && in_array ( $_GET ["action"], $possible_url )) 
 			break;
 		
 		case 'put_log' :
-			if (isset ( $_GET ["time"] ) && isset ( $_GET ["remotehost"] ) && isset ( $_GET ["bytes"] ) && isset ( $_GET ["url"] ) && isset ( $_GET ["username"] )) {
+			if (isset ( $_GET ["time"] ) && isset ( $_GET ["remotehost"] ) && isset ( $_GET ["bytes"] ) && isset ( $_GET ["url"] ) && isset ( $_GET ["username"] ) && isset ( $_GET ["index"] )) {
 				
 				// get only the necessary parameters
 				$data = array (
@@ -172,7 +172,8 @@ if (isset ( $_GET ["action"] ) && in_array ( $_GET ["action"], $possible_url )) 
 						"remotehost" => $_GET ["remotehost"],
 						"bytes" => $_GET ["bytes"],
 						"url" => $_GET ["url"],
-						"username" => $_GET ["username"] 
+						"username" => $_GET ["username"],
+						"index" => $_GET ["index"]
 				);
 				
 				$id = Resource::put_log ( $data );

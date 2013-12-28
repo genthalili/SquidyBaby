@@ -10,7 +10,8 @@ require_once 'CallAPI.php';
  *        
  */
 class LogReader {
-	private static $caplsul_timeout = 40.0; //in sec (number type : double)
+	private static $marge_timeout = 300.0; // in sec (number type : double)
+	private static $caplsul_timeout = 40.0; // in sec (number type : double)
 	private static $uri_pid_log = "/var/www/SquidyBaby/tool/log/pid.log";
 	private static $file = "/var/log/squid3/access.log"; // Log file location
 	private $sizebyte = 0;
@@ -25,15 +26,14 @@ class LogReader {
 	}
 	/**
 	 * Default constructer
-	 * 
-	 * @param $username
+	 *
+	 * @param
+	 *        	$username
 	 */
 	private function __construct($username) {
 		$this->username = $username;
-		$this->emptyFile($username);
+		$this->emptyFile ( $username );
 	}
-	
-	
 	static public function start($username = NULL) {
 		// main --
 		$pid = self::readPID ( self::$uri_pid_log );
@@ -62,11 +62,18 @@ class LogReader {
 	 */
 	/**
 	 * Read fisrt line on $file, store it on DataBase, delete it from $file 2nd line become 1st and so on till $file has no more line...
-	 * 
+	 *
 	 * @param
 	 *        	Logger file name : $file
 	 */
 	private function follow($file) {
+		$index_array= array();
+		$last_index = array (
+				"i" => 1,
+				"time" => null 
+		);
+		$isFirst = true;
+		
 		while ( true ) {
 			if (($d = $this->read_and_delete_first_line ( $file )) != null) {
 				$line_array = explode ( " ", $this->trimUltime ( $d ) );
@@ -97,14 +104,33 @@ class LogReader {
 						);
 					} else {
 						// empty => create
+						//init
+						$user = $line_array [7];
+						if($isFirst){
+							$index_array[$user] = $last_index;
+							
+						}else{
+							
+							//print_r($index_array);
+							//echo $line_array [0]."\n";
+							if(($index_array[$user]["time"] + self::$marge_timeout) <= $line_array [0]){
+								$index_array[$user]["i"]++;
+							}		
+						}
+						
+						$index_array[$user]["time"] = $line_array [0]; //last time
+						
 						$logData = array (
 								"action" => "put_log",
 								"time" => $line_array [0],
 								"remotehost" => $line_array [2],
 								"bytes" => $line_array [4],
 								"url" => parse_url ( $line_array [6] )['host'],
-								"username" => $line_array [7] 
+								"username" => $user,
+								"index" => $index_array[$user]["i"] 
 						);
+						$isFirst = false;
+						
 					}
 					
 					CallAPI::sample ( $logData );
@@ -162,14 +188,14 @@ class LogReader {
 			return $returnLine;
 		} catch ( Exception $exc ) {
 			$file->flock ( LOCK_UN );
-			//echo $exc->getTraceAsString ();
+			// echo $exc->getTraceAsString ();
 			return null;
 		}
 	}
 	
 	/**
 	 * Empty the file
-	 * 
+	 *
 	 * @param
 	 *        	File name $file
 	 */
@@ -255,8 +281,10 @@ class LogReader {
 	// aux functions
 	/**
 	 *
-	 * @param $filename to write
-	 * @param number of $pid
+	 * @param $filename to
+	 *        	write
+	 * @param
+	 *        	number of $pid
 	 */
 	static private function writePID($filename, $pid) {
 		$fh = fopen ( $filename, 'r+' );
@@ -270,7 +298,8 @@ class LogReader {
 	
 	/**
 	 *
-	 * @param $filename to read
+	 * @param $filename to
+	 *        	read
 	 * @return $pid = 0 if $filename redeable else number of active PID
 	 */
 	static private function readPID($filename) {
@@ -284,9 +313,8 @@ class LogReader {
 	}
 }
 
+// main
 
-//main
-
-
+//$reader = LogReader::start ();
 
 ?>
