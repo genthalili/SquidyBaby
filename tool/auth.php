@@ -29,8 +29,11 @@ while ( !feof(STDIN)  ) {
 			// connection passed
 			
 			// start Logreader
-			$reader = LogReader::start ();
-			
+			try {
+				$reader = LogReader::start ();
+			} catch (Exception $e) {
+			}
+		
 			fwrite ( STDOUT,"OK\n");
 		}
 	} else {

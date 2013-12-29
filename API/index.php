@@ -26,7 +26,8 @@ $possible_url = array (
 		'put_log',
 		'get_log_all',
 		'get_log_newer_than',
-		'update_log' 
+		'update_log',
+		'get_volume'
 );
 
 // REST API
@@ -236,7 +237,7 @@ if (isset ( $_GET ["action"] ) && in_array ( $_GET ["action"], $possible_url )) 
 					
 					$json = array (
 							'status' => 'ok',
-							'log' => $log->export () 
+							'log' => $log->export() 
 					);
 				} else {
 					$json = array (
@@ -283,6 +284,37 @@ if (isset ( $_GET ["action"] ) && in_array ( $_GET ["action"], $possible_url )) 
 				);
 			}
 			break;
+			
+			case 'get_volume' :
+				if (isset ( $_GET ["username"] ) && isset ( $_GET ["start_date"] )) {
+					
+					if(isset ( $_GET ["end_date"] )){
+						
+						$volume = Resource::get_volume($_GET ["username"], $_GET ["start_date"],$_GET ["end_date"] );
+					}else{
+						$volume = Resource::get_volume($_GET ["username"], $_GET ["start_date"]);
+					}
+			
+					
+			
+					if ($volume) {
+						$json = array (
+								'status' => 'ok',
+								'volume' => $volume
+						);
+					} else {
+						$json = array (
+								'status' => 'error',
+								'msg' => 'Cannot get volume'
+						);
+					}
+				} else {
+					$json = array (
+							'status' => 'error',
+							'msg' => 'Parameters are missing'
+					);
+				}
+				break;
 	}
 }
 

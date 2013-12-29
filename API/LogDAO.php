@@ -1,4 +1,6 @@
  <?php
+date_default_timezone_set('UTC');
+ 
  class Model_Log extends RedBean_SimpleModel {
 
  	//Table name
@@ -61,7 +63,7 @@
     public static function getNewerThan($time, $host, $username, $TCP_codes){
     	$log = R::findOne(
     			self::$table,
-    			' time >= :time AND username = :username AND url = :url AND TCP_codes = :TCP_codes',
+    			' time >= :time AND username = :username AND url = :url AND TCP_codes = :TCP_codes LIMIT 1',
     			array(
     					':time' => $time,
     					':username' => $username,
@@ -71,6 +73,30 @@
     	);
     	if(empty($log)) return false;
     	else return $log;
+    }
+    
+    //get volume downloaded by username and period
+    public static function getVolume($username, $start_date, $end_date = null) {
+    	//
+    	$sql = 'SELECT username, sum( bytes ) AS val, :start_date as start_date, :end_date as end_date FROM `log` WHERE date( FROM_UNIXTIME( time ) ) >= date( :start_date ) AND  date( FROM_UNIXTIME( time ) ) <= date( :end_date ) AND username=:username AND tcp_codes NOT LIKE "%DENIED%" GROUP BY username LIMIT 1';
+    
+    	
+    	$end_date = ( $end_date == null ? date('Y-m-d') : $end_date );
+    		
+    	
+    	$volume = R::getAll($sql,
+    			array(
+    				//':table' => self::$table,
+    				':username' => $username,
+    				':end_date' => $end_date,
+    				':start_date' => $start_date
+    	)
+    	);
+    	//$volume = 12;
+    	
+    	//array_push('sd', $volume);
+    	
+    	return $volume;
     }
 
  	//Observers

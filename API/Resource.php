@@ -54,5 +54,8 @@ class Resource{
 	public static function get_log_newer_than($time, $host, $username, $TCP_codes){
 		return Model_Log::getNewerThan($time, $host, $username, $TCP_codes);
 	}
+	public static function get_volume($username, $start_date, $end_sate = null){
+		return Model_Log::getVolume($username, $start_date, $end_sate);
+	}
 }
 ?>

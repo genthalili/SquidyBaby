@@ -4,7 +4,7 @@ require_once 'CallAPI.php';
 
 /**
  * LogReader Class
- * Read squid log file (access.log), get the fist line, store it to DB and finaly delete it (2nd line became the 1st one ans so on..).
+ * Read squid log file (access.log), get the first line, store it to DB and finaly delete it (2nd line became the 1st one ans so on..).
  *
  * @author Gent
  *        
@@ -61,7 +61,7 @@ class LogReader {
 	 *
 	 */
 	/**
-	 * Read fisrt line on $file, store it on DataBase, delete it from $file 2nd line become 1st and so on till $file has no more line...
+	 * Read first line on $file, store it on DataBase, delete it from $file then ... 2nd line become 1st and so on ... till $file has no more lines...
 	 *
 	 * @param
 	 *        	Logger file name : $file
@@ -79,7 +79,7 @@ class LogReader {
 				$line_array = explode ( " ", $this->trimUltime ( $d ) );
 				
 				// TODO : +other restrictions
-				if ($line_array [7] != "-") { // if it's an activ user
+				if ( is_array($line_array) && isset($line_array [7]) && $line_array [7] != "-") { // if it's an activ user
 					/*
 					 * echo '<pre>'; print_r($line_array); echo '</pre>';
 					 */
@@ -99,8 +99,11 @@ class LogReader {
 					// else create new
 					$logTester = CallAPI::sample ( $logDataTest );
 					
-					if ($logTester->status === "ok") {
+					if ($logTester && $logTester->status === "ok") {
 						// update
+						
+						
+						
 						$logData = array (
 								"action" => "update_log",
 								"id" => $logTester->log->id,
