@@ -27,7 +27,8 @@ $possible_url = array (
 		'get_log_all',
 		'get_log_newer_than',
 		'update_log',
-		'get_volume'
+		'get_volume',
+		'get_quota'
 );
 
 // REST API
@@ -315,6 +316,37 @@ if (isset ( $_GET ["action"] ) && in_array ( $_GET ["action"], $possible_url )) 
 					);
 				}
 				break;
+				
+				case 'get_quota' :
+					if (isset ( $_GET ["username"] ) && isset ( $_GET ["start_date"] )) {
+							
+						if(isset ( $_GET ["end_date"] )){
+				
+							$qupta_time = Resource::get_quota($_GET ["username"], $_GET ["start_date"], $_GET ["end_date"] );
+						}else{
+							$qupta_time = Resource::get_quota($_GET ["username"], $_GET ["start_date"]);
+						}
+							
+							
+							
+						if ($qupta_time) {
+							$json = array (
+									'status' => 'ok',
+									'volume' => $qupta_time
+							);
+						} else {
+							$json = array (
+									'status' => 'error',
+									'msg' => 'Cannot get quota time'
+							);
+						}
+					} else {
+						$json = array (
+								'status' => 'error',
+								'msg' => 'Parameters are missing'
+						);
+					}
+					break;
 	}
 }
 

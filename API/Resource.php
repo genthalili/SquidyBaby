@@ -57,5 +57,8 @@ class Resource{
 	public static function get_volume($username, $start_date, $end_sate = null){
 		return Model_Log::getVolume($username, $start_date, $end_sate);
 	}
+	public static function get_quota($username, $start_date, $end_sate = null){
+		return Model_Log::getQuota($username, $start_date, $end_sate);
+	}
 }
 ?>
