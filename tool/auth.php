@@ -36,9 +36,8 @@ while ( !feof(STDIN)  ) {
 		
 			fwrite ( STDOUT,"OK\n");
 		}
-	} else {
-		//fwrite ( STDOUT, "ERR\n" );
-	}
+		fflush(STDOUT);
+	} 
 }
 /**
  * @param String $username

@@ -61,7 +61,8 @@ class LogReader {
 	 *
 	 */
 	/**
-	 * Read first line on $file, store it on DataBase, delete it from $file then ... 2nd line become 1st and so on ... till $file has no more lines...
+	 * Read first line on $file, store it on DataBase, delete it from $file then .
+	 * .. 2nd line become 1st and so on ... till $file has no more lines...
 	 *
 	 * @param
 	 *        	Logger file name : $file
@@ -69,7 +70,7 @@ class LogReader {
 	private function follow($file) {
 		$index_array = array ();
 		$last_index = array (
-				"i" => 1,
+				// "i" => 1,
 				"time" => null 
 		);
 		$isFirst = true;
@@ -79,7 +80,7 @@ class LogReader {
 				$line_array = explode ( " ", $this->trimUltime ( $d ) );
 				
 				// TODO : +other restrictions
-				if ( is_array($line_array) && isset($line_array [7]) && $line_array [7] != "-") { // if it's an activ user
+				if (is_array ( $line_array ) && isset ( $line_array [7] ) && $line_array [7] != "-") { // if it's an activ user
 					/*
 					 * echo '<pre>'; print_r($line_array); echo '</pre>';
 					 */
@@ -99,10 +100,10 @@ class LogReader {
 					// else create new
 					$logTester = CallAPI::sample ( $logDataTest );
 					
+					$user = $line_array [7];
+					
 					if ($logTester && $logTester->status === "ok") {
 						// update
-						
-						
 						
 						$logData = array (
 								"action" => "update_log",
@@ -113,7 +114,6 @@ class LogReader {
 						// empty => create
 						
 						// init
-						$user = $line_array [7];
 						
 						if (! isset ( $index_array [$user] ["i"] )) {
 							$index_array [$user] ["i"] = 1;
@@ -151,6 +151,14 @@ class LogReader {
 					}
 					
 					CallAPI::sample ( $logData );
+					
+					// add last index to DB
+					$lastindex = array (
+							"action" => "update_member",
+							"username" => $user,
+							"current_index" => 0 
+					)
+					;
 				}
 			}
 			usleep ( 100 );

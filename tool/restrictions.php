@@ -87,7 +87,7 @@ while ( ! feof ( STDIN ) ) {
 			fwrite ( STDOUT, "OK\n" ); // allow access
 		}
 	} else {
-		fwrite ( STDOUT, "ERR\n" );
+		//fwrite ( STDOUT, "ERR\n" );
 	}
 	
 	
