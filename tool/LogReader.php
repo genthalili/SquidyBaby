@@ -11,7 +11,7 @@ require_once 'CallAPI.php';
  */
 class LogReader {
 	private static $marge_timeout = 300.0; // in sec (number type : double)
-	private static $caplsul_timeout = 40.0; // in sec (number type : double)
+	private static $caplsul_timeout = 10.0; // in sec (number type : double)
 	private static $uri_pid_log = "/var/www/SquidyBaby/tool/log/pid.log";
 	private static $file = "/var/log/squid3/access.log"; // Log file location
 	private $sizebyte = 0;
@@ -62,6 +62,9 @@ class LogReader {
 	 */
 	/**
 	 * Read first line on $file, store it on DataBase, delete it from $file then .
+	 *
+	 *
+	 *
 	 * .. 2nd line become 1st and so on ... till $file has no more lines...
 	 *
 	 * @param
@@ -116,7 +119,20 @@ class LogReader {
 						// init
 						
 						if (! isset ( $index_array [$user] ["i"] )) {
-							$index_array [$user] ["i"] = 1;
+							
+							// get current_index
+							$getlastindex = array (
+									"action" => "get_member_by_username",
+									"username" => $user 
+							);
+							
+							$resp = CallAPI::sample ( $getlastindex );
+							
+							if ($resp != NULL && $resp->status === 'ok' && $resp->member->current_index > 0) {
+								$index_array [$user] ["i"] = $resp->member->current_index;
+							} else {
+								$index_array [$user] ["i"] = 1;
+							}
 						}
 						if (! isset ( $index_array [$user] ["time"] )) {
 							$index_array [$user] ["time"] = 0.0;
@@ -154,11 +170,12 @@ class LogReader {
 					
 					// add last index to DB
 					$lastindex = array (
-							"action" => "update_member",
+							"action" => "update_index_to_member",
 							"username" => $user,
-							"current_index" => 0 
-					)
-					;
+							"current_index" => $index_array [$user] ["i"] 
+					);
+					
+					CallAPI::sample ( $lastindex );
 				}
 			}
 			usleep ( 100 );

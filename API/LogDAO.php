@@ -61,12 +61,11 @@
 		}
 		
 		// Get a log
-		public static function getNewerThan($time, $host, $username, $TCP_codes) {
-			$log = R::findOne ( self::$table, ' time >= :time AND username = :username AND url = :url AND TCP_codes = :TCP_codes LIMIT 1', array (
-					':time' => $time,
+		public static function getNewerThan($time, $host, $username) {
+			$log = R::findOne ( self::$table, ' time >= :time AND username = :username AND url = :url ', array (
+					'time' => $time,
 					':username' => $username,
-					':url' => $host,
-					':TCP_codes' => $TCP_codes 
+					':url' => $host 
 			) );
 			if (empty ( $log ))
 				return false;
@@ -115,7 +114,7 @@
 			
 			$sql = 'SELECT l.username , sum(l.time) as quota_time from
   (SELECT  (MAX(time) -MIN(time)) AS time, username, index_id AS groupID FROM log WHERE date( FROM_UNIXTIME( time ) ) >= date( :start_date ) AND  date( FROM_UNIXTIME( time ) ) <= date( :end_date )  ' . $moreUser . ' AND tcp_codes NOT LIKE "%DENIED%" GROUP BY username, index_id ORDER BY index_id)
-	as l
+    as l
   group by l.username';
 			
 			$end_date = ($end_date == null ? date ( 'Y-m-d' ) : $end_date);
@@ -142,7 +141,24 @@
 		}
 		public function update() {
 		}
+		
+		// notify new logs to clients
 		public function after_update() {
+			$data = $this->bean->export ();
+			$data_string = json_encode ( $data );
+			
+			$curl = curl_init ();
+			
+			curl_setopt ( $curl, CURLOPT_URL, "http://localhost:8000/putlog" );
+			curl_setopt ( $curl, CURLOPT_CUSTOMREQUEST, "POST" );
+			curl_setopt ( $curl, CURLOPT_POSTFIELDS, $data_string );
+			curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, true );
+			curl_setopt ( $curl, CURLOPT_HTTPHEADER, array (
+					'Content-Type: application/json',
+					'Content-Length: ' . strlen ( $data_string ) 
+			) );
+			
+			curl_exec ( $curl );
 		}
 		public function delete() {
 		}

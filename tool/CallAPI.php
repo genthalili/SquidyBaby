@@ -4,14 +4,18 @@
  * @author Gent
  *
  */
+
 class CallAPI {
 	public static $PATH_TO_API = "http://localhost/SquidyBaby/API/";
+	
 	function __construct() {
 	}
+	
 	public static function sample($data = false) {
 		// default $method = GET
 		return self::callAPI ( "GET", self::$PATH_TO_API, $data );
 	}
+	
 	public static function pameters($method, $url, $data = false) {
 		return self::callAPI ( $method, $url, $data );
 	}

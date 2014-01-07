@@ -13,6 +13,15 @@
  	public static function put($data){
  		$id = false;
 
+        $member = R::findOne(
+            self::$table,
+            ' username = :username',
+            array( 
+                ':username' => $data['username']
+            ) 
+        );
+        if(!empty($member)) return false;
+
  		//create and set the member
  		$member = R::dispense(self::$table);
  		foreach ($data as $key => $value) {
@@ -35,12 +44,33 @@
 		return $id;
  	}
 
+    public static function updateMember($member, $key, $value){
+        $id = false;
+
+        if($key == 'password') $member->setAttr($key,sha1($value));
+        else $member->setAttr($key,$value);
+
+        R::begin();
+        try{
+            $id = R::store($member);
+            R::commit();
+        }
+        catch(Exception $e) {
+            R::rollback();
+            $id = false;
+        }
+
+        return $id;
+    }
+
  	//Delete a member
  	public static function del($id){
  		$member = Model_Member::getById($id);
  		if($member == null) return false;
+
+        $username = $member->username;
     	R::trash($member);
-    	return true;
+    	return $username;
  	}
 
  	//Get a member
@@ -49,6 +79,13 @@
 		if (!$member->id) { return false; } 
 		return $member;
  	}
+
+    public static function getByUsername($username){
+        $members = R::find(self::$table,' username like ? ', 
+            array( $username )
+        );
+        return $members;
+    }
 
  	//Get a member
  	public static function getByCredentials($username, $password){
