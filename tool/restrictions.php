@@ -46,6 +46,21 @@ while ( ! feof ( STDIN ) ) {
 		// CallAPI class <-----
 		
 		///TEST
+		$reqRestrictions = array(
+			
+				"action"=> "get_restrictions_by_username",
+				"username" => $username
+		);
+		
+		$restrictions = CallAPI::sample($reqRestrictions);
+		if($restrictions !=NULL && $restrictions->status ==="ok"){
+			foreach ($restrictions->restrictions as $restriction) {
+				//print_r($restriction);
+			}
+		}
+		
+		
+		
 		$users = array();
 		
 		

@@ -25,8 +25,7 @@
  		//create and set the member
  		$member = R::dispense(self::$table);
  		foreach ($data as $key => $value) {
- 			if($key == 'password') $member->setAttr($key,sha1($value));
- 			else $member->setAttr($key,$value); 
+ 			$member->setAttr($key,$value); 
  		}
 
  		//do transaction
@@ -47,8 +46,7 @@
     public static function updateMember($member, $key, $value){
         $id = false;
 
-        if($key == 'password') $member->setAttr($key,sha1($value));
-        else $member->setAttr($key,$value);
+        $member->setAttr($key,$value);
 
         R::begin();
         try{
@@ -80,7 +78,7 @@
 		return $member;
  	}
 
-    public static function getByUsername($username){
+    public static function getMembersByUsername($username){
         $members = R::find(self::$table,' username like ? ', 
             array( $username )
         );

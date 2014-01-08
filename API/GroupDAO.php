@@ -98,6 +98,7 @@
             $id = R::store($group);
             R::commit();
             if($id) $members = $join;
+            if(!$members) $members = ' ';
         }
         catch(Exception $e) {
             R::rollback();
@@ -110,10 +111,13 @@
 
  	//Delete a group
  	public static function del($id){
+
  		$group = Model_Group::getById($id);
  		if($group == null) return false;
+
+        $groupname = $group->groupname;
     	R::trash($group);
-    	return true;
+    	return $groupname;
  	}
 
  	//Get a group
@@ -122,6 +126,13 @@
 		if (!$group->id) { return false; } 
 		return $group;
  	}
+
+    public static function getGroupsByGroupname($groupname){
+        $groups = R::find(self::$table,' groupname like ? ', 
+            array( $groupname )
+        );
+        return $groups;
+    }
 
     public static function getAll($order, $limit){
         $groups = R::findAll(self::$table,

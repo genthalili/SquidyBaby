@@ -3,18 +3,59 @@
 //load DAO
 require_once('MemberDAO.php');
 require_once('GroupDAO.php');
+require_once('RestrictionDAO.php');
 require_once('LogDAO.php');
 
 class Resource{
 
 	/*
+	* Resources corresponding to restriction
+	*/
+	
+	public static function put_restriction($data){
+		return Model_Restriction::put($data);
+	}
+
+	public static function get_restriction_by_id($id){
+		return Model_Restriction::getById($id);
+	}
+
+	public static function get_restriction_all($order, $limit){
+		return Model_Restriction::getAll($order, $limit);
+	}
+
+	public static function get_restriction_all_id(){
+		return Model_Restriction::getAllId();
+	}
+
+	public static function put_restriction_member($id, $username){
+		return Model_Restriction::putMember($id, $username);
+	}
+
+	public static function delete_restriction_member($id, $username){
+		return Model_Restriction::deleteMember($id, $username);
+	}
+
+	public static function put_restriction_group($id, $groupname){
+		return Model_Restriction::putGroup($id, $groupname);
+	}
+
+	public static function delete_restriction_group($id, $groupname){
+		return Model_Restriction::deleteGroup($id, $groupname);
+	}
+
+	public static function delete_restriction($id){
+		return Model_Restriction::del($id);
+	}
+
+	public static function get_restrictions_by_username($username){
+		return Model_Restriction::getByUsername($username);
+	}
+	
+	/*
 	* Resources corresponding to group
 	*/
 	public static function put_group($data){
-		return Model_Group::put($data);
-	}
-
-	public static function update_group($data){
 		return Model_Group::put($data);
 	}
 
@@ -42,6 +83,9 @@ class Resource{
 		return Model_Group::del($id);
 	}
 
+	public static function get_groups_by_groupname($groupname){
+		return Model_Group::getGroupsByGroupname($groupname);
+	}
 
 	/*
 	* Resources corresponding to member
@@ -58,8 +102,8 @@ class Resource{
 		return Model_Member::getAll($order, $limit);
 	}
 
-	public static function get_member_by_username($username){
-		return Model_Member::getByUsername($username);
+	public static function get_members_by_username($username){
+		return Model_Member::getMembersByUsername($username);
 	}
 
 	public static function get_member_by_id($id){
