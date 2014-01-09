@@ -137,6 +137,10 @@ class Resource{
 	public static function delete_log($id){
 		return Model_Log::del($id);
 	}
+	
+	public static function get_log_all($order, $limit){
+		return Model_Log::getAll($order, $limit);
+	}
 
 	public static function get_log_newer_than($time, $host, $username, $TCP_codes){
 		return Model_Log::getNewerThan($time, $host, $username, $TCP_codes);

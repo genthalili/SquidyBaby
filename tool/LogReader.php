@@ -10,7 +10,7 @@ require_once 'CallAPI.php';
  *        
  */
 class LogReader {
-	private static $marge_timeout = 300.0; // in sec (number type : double)
+	private static $marge_timeout = 60.0; // in sec (number type : double)
 	private static $caplsul_timeout = 10.0; // in sec (number type : double)
 	private static $uri_pid_log = "/var/www/SquidyBaby/tool/log/pid.log";
 	private static $file = "/var/log/squid3/access.log"; // Log file location
@@ -62,6 +62,7 @@ class LogReader {
 	 */
 	/**
 	 * Read first line on $file, store it on DataBase, delete it from $file then .
+	 *
 	 *
 	 *
 	 *
@@ -128,23 +129,36 @@ class LogReader {
 							
 							$resp = CallAPI::sample ( $getlastindex );
 							
-							if ($resp != NULL && $resp->status === 'ok' && $resp->member->current_index > 0) {
+							if ($resp != NULL && $resp->status === 'ok' && is_numeric ( $resp->member->current_index )) {
 								$index_array [$user] ["i"] = $resp->member->current_index;
 							} else {
 								$index_array [$user] ["i"] = 1;
 							}
 						}
 						if (! isset ( $index_array [$user] ["time"] )) {
-							$index_array [$user] ["time"] = 0.0;
-						}
-						
-						if (! $isFirst) {
 							
-							// add here other rules
-							if (trim ( $TCP_codes ) != "TCP_DENIED" && $index_array [$user] ["time"] != 0.0 && (($index_array [$user] ["time"] + self::$marge_timeout) <= $line_array [0])) {
-								$index_array [$user] ["i"] ++;
+							$getlastlog = array (
+									"action" => "get_log_all",
+									"order" => "time DESC",
+									"limit" => 1 
+							);
+							$resultgetlastlog = CallAPI::sample ( $getlastlog );
+							
+							if ($resultgetlastlog != NULL && $resultgetlastlog->status === 'ok') {
+								
+								$index_array [$user] ["time"] = floatval($resultgetlastlog->logs[0]->time);
+							} else {
+								$index_array [$user] ["time"] = 0.0;
 							}
 						}
+						
+						// if (! $isFirst) {
+						
+						// add here other rules
+						if (trim ( $TCP_codes ) != "TCP_DENIED" && $index_array [$user] ["time"] != 0.0 && (($index_array [$user] ["time"] + self::$marge_timeout) <= $line_array [0])) {
+							$index_array [$user] ["i"] ++;
+						}
+						// }
 						
 						//
 						

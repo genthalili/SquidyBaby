@@ -31,15 +31,29 @@ require_once 'CallAPI.php';
 
 // echo array_search("ok", $a)."\n";
 
-$data = array (
-		"action" => "get_volume",
-		"username" => "*",
-		"start_date" => "2013-12-22"
+// $data = array (
+// 		"action" => "get_volume",
+// 		"username" => "*",
+// 		"start_date" => "2013-12-22"
 		
+// );
+
+// $test = CallAPI::sample ( $data );
+
+// print_r($test->volume[0]->val);
+
+$getlastlog = array (
+		"action" => "get_log_all",
+		"order" => "time DESC",
+		"limit" => 1
 );
 
-$test = CallAPI::sample ( $data );
+$resultgetlastlog = CallAPI::sample ( $getlastlog );
+	
+if ($resultgetlastlog != NULL && $resultgetlastlog->status === 'ok') {
 
-print_r($test->volume[0]->val);
+	$val = floatval($resultgetlastlog->logs[0]->time);
+}
+echo $val;
 
 ?>
