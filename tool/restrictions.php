@@ -135,7 +135,7 @@ while ( ! feof ( STDIN ) ) {
 					
 							if($quotaUser != NULL && $quotaUser->status ==="ok"){
 									
-								$quotaActu = $quotaUser->volume->get_quota;
+								$quotaActu = $quotaUser->volume->quota_time;
 								if($quotaActu>$quotaRes){
 									$ERR_MESSAGE = $ERR_MESSAGE ."Temps d'utilisation depassé pour la journée ";
 									$_resp = $ERR_RESP;
@@ -157,7 +157,7 @@ while ( ! feof ( STDIN ) ) {
 							$quotaUser = CallAPI::sample($quotaUser );
 							if($quotaUser != NULL && $quotaUser->status ==="ok"){
 									
-								$quotaActu = $quotaUser->volume->get_quota;
+								$quotaActu = $quotaUser->volume->quota_time;
 								if($quotaActu>$quotaRes){
 									$ERR_MESSAGE = $ERR_MESSAGE ."Temps d'utilisation depassé pour la semaine ";
 									$_resp = $ERR_RESP;

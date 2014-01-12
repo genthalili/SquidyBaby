@@ -53,6 +53,10 @@ class LogReader {
 	 */
 	public function run() {
 		if (self::$file) {
+			
+			//vide le fichier au debut
+			$this->emptyFile (self::$file );
+			
 			$this->follow ( self::$file );
 		}
 	}
