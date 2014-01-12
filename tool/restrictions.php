@@ -43,66 +43,155 @@ while ( ! feof ( STDIN ) ) {
 		 * verify : if $username has restrictions if $clientIP has restrictions if $hostname has restrictions if $url has restrictions etc... result: if true, result should be OK [message=Your%20restriction...] else result should be ERR rsults must end with "\n" type of restrictions: - quota time per day/week - downloaded volume per day/week
 		 */
 		
-		// CallAPI class <-----
 		
-		///TEST
-		$reqRestrictions = array(
-			
-				"action"=> "get_restrictions_by_username",
-				"username" => $username
+		$reqRestrictionsVol = array(			
+				"action"=> "get_restrictions_by_username_and_restype",
+				"username" => $username,
+				"restype" => 'volume'
+		);
+		$reqRestrictionsQ = array(				
+				"action"=> "get_restrictions_by_username_and_restype",
+				"username" => $username,
+				"restype" => 'quota'
 		);
 		
-		$restrictions = CallAPI::sample($reqRestrictions);
-		if($restrictions !=NULL && $restrictions->status ==="ok"){
-			foreach ($restrictions->restrictions as $restriction) {
-				//print_r($restriction);
+		$restrictionsVol = CallAPI::sample($reqRestrictionsVol);
+		$restrictionsQ = CallAPI::sample($reqRestrictionsQ);
+		
+		$ERR_RESP = 'ERR message=%s'; //deny
+		$OK_RESP = "OK"; //allow
+
+		
+		if(($restrictionsVol !=NULL && $restrictionsVol->status ==="ok") || ($restrictionsQ !=NULL && $restrictionsQ->status ==="ok")){
+			
+			$_resp =$OK_RESP;
+			
+			if($restrictionsVol->status ==="ok"){	
+				foreach ($restrictionsVol->restrictions as $restriction) {
+					$volumeRes = $restriction->resdata;
+					switch ($restriction->resdate) {
+						case 'day':
+							$getVolume = array(
+									"action"=> "get_volume",
+									"username" => $username,
+									"start_date" => date("Y-m-j")
+							);
+							$volumeUser = CallAPI::sample($getVolume );
+							
+
+							if($volumeUser != NULL && $volumeUser->status ==="ok"){
+									
+								$volumeActu = $volumeUser->volume->val;
+								if($volumeActu>$volumeRes){
+									$ERR_MESSAGE = $ERR_MESSAGE ."Volume depassé pour la journée ";
+									$_resp = $ERR_RESP;
+								}
+									
+							}
+								
+							break;
+						case 'week':
+							
+							$custom_date = strtotime( date("Y-m-j") );
+							$week_start = date('Y-m-j', strtotime('this week last monday', $custom_date));
+						
+							$getVolume = array(
+									"action"=> "get_volume",
+									"username" => $username,
+									"start_date" => $week_start
+							);
+							$volumeUser = CallAPI::sample($getVolume );
+							if($volumeUser != NULL && $volumeUser->status ==="ok"){
+									
+								$volumeActu = $volumeUser->volume->val;
+								if($volumeActu>$volumeRes){
+									$ERR_MESSAGE = $ERR_MESSAGE ."Volume depassé pour la semaine ";
+									$_resp = $ERR_RESP;
+								}
+									
+							}
+							
+							break;				
+						default:				
+							break;
+					}				
+				}
 			}
+			
+			
+			//Quota
+			if($restrictionsQ->status ==="ok"){
+				foreach ($restrictionsQ->restrictions as $restriction) {
+					$quotaRes = $restriction->resdata;
+					switch ($restriction->resdate) {
+						case 'day':
+							$getQuota = array(
+							"action"=> "get_quota",
+							"username" => $username,
+							"start_date" => date("Y-m-j")
+							);
+							$quotaUser = CallAPI::sample($getQuota );
+								
+					
+							if($quotaUser != NULL && $quotaUser->status ==="ok"){
+									
+								$quotaActu = $quotaUser->volume->get_quota;
+								if($quotaActu>$quotaRes){
+									$ERR_MESSAGE = $ERR_MESSAGE ."Temps d'utilisation depassé pour la journée ";
+									$_resp = $ERR_RESP;
+								}
+									
+							}
+					
+							break;
+						case 'week':
+								
+							$custom_date = strtotime( date("Y-m-j") );
+							$week_start = date('Y-m-j', strtotime('this week last monday', $custom_date));
+							
+							$quotaUser = array(
+									"action"=> "get_quota",
+									"username" => $username,
+									"start_date" => $week_start
+							);
+							$quotaUser = CallAPI::sample($quotaUser );
+							if($quotaUser != NULL && $quotaUser->status ==="ok"){
+									
+								$quotaActu = $quotaUser->volume->get_quota;
+								if($quotaActu>$quotaRes){
+									$ERR_MESSAGE = $ERR_MESSAGE ."Temps d'utilisation depassé pour la semaine ";
+									$_resp = $ERR_RESP;
+								}
+									
+							}
+								
+							break;
+						default:
+							break;
+					}
+				}		
+			}
+			
+			
+			
+			fwrite ( STDOUT, sprintf($_resp,  rawurlencode ( $ERR_MESSAGE ) )."\n" ); // deny access
+			
+		}else if(($restrictionsVol !=NULL && 
+				$restrictionsVol->status ==="error" &&
+				 $restrictionsVol->msg ==="User is unknown")
+				 || ($restrictionsQ !=NULL && 
+				$restrictionsQ->status ==="error" &&
+				 $restrictionsQ->msg ==="User is unknown")){
+			fwrite ( STDOUT, $OK_RESP."\n" ); // deny access
+		}else{
+			//if not un user 
+			$ERR_MESSAGE="Ne peut pas acceder à API, veuillez contacter l'adminstrateur!!!";
+			fwrite ( STDOUT, "ERR message=" . rawurlencode ( $ERR_MESSAGE ) . "\n" ); // deny access		
 		}
 		
 		
 		
-		$users = array();
 		
-		
-			$stef = array(
-					"action" => "get_member_by_id",
-					"id"=>1
-			);
-			$gent = array(
-					"action" => "get_member_by_id",
-					"id"=>2
-			);
-			
-			
-			$stef = CallAPI::sample($stef);
-			$gent = CallAPI::sample($gent);
-			
-			if($stef->status ==="ok"){
-				$stef=$stef->member;
-			
-			$users[$stef->username] = $stef;
-			
-			}
-			
-			if($gent->status ==="ok"){
-				$gent=$gent->member;
-					
-				$users[$gent->username] = $gent;
-					
-			}
-		
-		
-		//print_r($users);
-		//echo $users[$username]->allow."\n";
-		
-		$ERR_MESSAGE = $clientIP . " " . $url . " " . $ip . " " . $username;
-		if ( intval($users[$username]->allow) === 0 ) {
-			fwrite ( STDOUT, "ERR message=" . rawurlencode ( $ERR_MESSAGE ) . "\n" ); // deny access
-		} else {
-			fwrite ( STDOUT, "OK\n" ); // allow access
-		}
-	} else {
-		//fwrite ( STDOUT, "ERR\n" );
 	}
 	
 	

@@ -247,6 +247,52 @@
 
         return array_unique($arr);
     }
+    
+    
+    public static function getByUsernameAndRestype($username, $restype){
+    	$arr = array();
+    	$ids = array();
+    	
+    	$restrictions = R::getAll('SELECT * FROM  (SELECT * FROM  restriction WHERE restype="'.$restype.'" ORDER BY resdate, case when members is null then 1 else 0 end,case when  groups is null then 1 else 0 end, ABS(resdata) ) AS r group by r.resdate');
+    	
+
+    	
+    	foreach ($restrictions as $restriction) {
+    		$restriction = (object)$restriction;
+    		$members = explode(" ", $restriction->members);
+    		$groups = explode(" ", $restriction->groups);
+    		
+    		
+    		$members = explode(" ", $restriction->members);
+    		$groups = explode(" ", $restriction->groups);
+    
+    		if (in_array($username, $members)) {
+    			$arr[] = $restriction;
+    			$ids[] = $restriction->id;
+    		}
+    
+    		foreach ($groups as $groupname) {
+    
+    			$groupsFound = R::find(self::$tableGroup,' groupname = ? ',
+    					array( $groupname )
+    			);
+    
+    			foreach ($groupsFound as $groupFound) {
+    				$membersFound = explode(" ", $groupFound->members);
+    
+    				foreach ($membersFound as $usernameFound) {
+    					if($usernameFound == $username) $arr[] = $restriction;
+    
+    				}
+    				 
+    			}
+    
+    		}
+    
+    	}
+    
+    	return $arr;
+    }
 
  	//Observers
 	public function open() {}

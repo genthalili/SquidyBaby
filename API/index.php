@@ -46,7 +46,8 @@ $possible_url = array (
 		'get_volume',
 		'get_quota',
 		'update_index_to_member',
-		'get_restrictions_by_username' 
+		'get_restrictions_by_username',
+		'get_restrictions_by_username_and_restype'
 );
 
 // REST API
@@ -920,6 +921,44 @@ if (isset ( $_GET ["action"] ) && in_array ( $_GET ["action"], $possible_url )) 
 				);
 			}
 			break;
+			
+			case 'get_restrictions_by_username_and_restype' :
+				if (isset ( $_GET ["username"] ) && isset ( $_GET ["restype"] )) {
+			
+					$members = Resource::get_members_by_username ( strtolower ( $_GET ["username"] ) );
+			
+					if ($members) {
+						$restrictions = Resource::get_restrictions_by_username_and_restype($_GET ["username"], $_GET ["restype"]);
+							
+						if ($restrictions) {
+							$formated_restrictions = array ();
+							foreach ( $restrictions as $restriction ) {
+								$formated_restrictions [] = $restriction;
+							}
+			
+							$json = array (
+									'status' => 'ok',
+									'restrictions' => $formated_restrictions
+							);
+						} else {
+							$json = array (
+									'status' => 'error',
+									'msg' => 'Cannot restrictions'
+							);
+						}
+					} else {
+						$json = array (
+								'status' => 'error',
+								'msg' => 'User is unknown'
+						);
+					}
+				} else {
+					$json = array (
+							'status' => 'error',
+							'msg' => 'Parameters are missing'
+					);
+				}
+				break;
 	}
 }
 

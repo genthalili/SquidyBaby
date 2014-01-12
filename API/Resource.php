@@ -52,6 +52,10 @@ class Resource{
 		return Model_Restriction::getByUsername($username);
 	}
 	
+	public static function get_restrictions_by_username_and_restype($username, $restype){
+		return Model_Restriction::getByUsernameAndRestype($username, $restype);
+	}
+	
 	/*
 	* Resources corresponding to group
 	*/
