@@ -47,6 +47,7 @@ class CallAPI {
 		
 		curl_setopt ( $curl, CURLOPT_URL, $url );
 		curl_setopt ( $curl, CURLOPT_SSL_VERIFYPEER, 0 ); //no need SSL verifiypeer (for localhost)
+		curl_setopt ( $curl, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, 1 );
 		
 		$result = curl_exec ( $curl );
