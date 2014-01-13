@@ -1,5 +1,5 @@
  <?php
-	date_default_timezone_set ( 'UTC' );
+	date_default_timezone_set ( 'Europe/Paris' );
 	class Model_Log extends RedBean_SimpleModel {
 		
 		// Table name

@@ -93,7 +93,7 @@ while ( ! feof ( STDIN ) ) {
 						case 'week':
 							
 							$custom_date = strtotime( date("Y-m-j") );
-							$week_start = date('Y-m-j', strtotime('this week last monday', $custom_date));
+							$week_start = date('Y-m-j', strtotime('this week monday', $custom_date));
 						
 							$getVolume = array(
 									"action"=> "get_volume",
@@ -147,7 +147,7 @@ while ( ! feof ( STDIN ) ) {
 						case 'week':
 								
 							$custom_date = strtotime( date("Y-m-j") );
-							$week_start = date('Y-m-j', strtotime('this week last monday', $custom_date));
+							$week_start = date('Y-m-j', strtotime('this week monday', $custom_date));
 							
 							$quotaUser = array(
 									"action"=> "get_quota",

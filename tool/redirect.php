@@ -29,7 +29,7 @@ while ( $input = fgets ( STDIN ) ) {
 	$restrictionsUrl = CallAPI::sample ( $reqRestrictionsUrl );
 	
 	if ($restrictionsUrl != NULL && $restrictionsUrl->status === 'ok') {
-		print_r($restrictionsUrl);
+
 		$restriction = $restrictionsUrl->restrictions [0]; // get only first restriction //TODO 
 		$urls = explode ( " ", $restriction->resdata );
 		

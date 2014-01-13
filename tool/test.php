@@ -55,5 +55,9 @@ if ($resultgetlastlog != NULL && $resultgetlastlog->status === 'ok') {
 	$val = floatval($resultgetlastlog->logs[0]->time);
 }
 echo $val;
+date_default_timezone_set ( 'Europe/Paris' );
+$custom_date = strtotime( date("Y-m-j") );
+$week_start = date('Y-m-j', strtotime('this week monday', $custom_date));
+echo $week_start;
 
 ?>

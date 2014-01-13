@@ -13,7 +13,7 @@ while ( !feof(STDIN)  ) {
 	$password = null;
 	$line = trim ( fgets ( STDIN ) );
 	
-	$line  = rawurldecode($line);
+	//$line  = rawurldecode($line);
 	$fields = explode ( ' ', $line );
 	if (sizeof ( $fields ) == 2) {
 		$username = rawurldecode ( $fields [0] );
