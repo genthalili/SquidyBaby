@@ -8,12 +8,12 @@ if (! defined ( "STDIN" )) {
 	define ( "STDIN", fopen ( "php://stdin", "r" ) );
 }
 
-while ( !feof(STDIN)  ) {
+while ( ! feof ( STDIN ) ) {
 	$username = null;
 	$password = null;
 	$line = trim ( fgets ( STDIN ) );
 	
-	//$line  = rawurldecode($line);
+	// $line = rawurldecode($line);
 	$fields = explode ( ' ', $line );
 	if (sizeof ( $fields ) == 2) {
 		$username = rawurldecode ( $fields [0] );
@@ -21,27 +21,33 @@ while ( !feof(STDIN)  ) {
 	}
 	
 	if ($username !== null and $password !== null) {
+		
 		// check auth on db
-		if (! successLogIn ( $username, $password )) {
+		$goodcred = successLogIn ( $username, $password );
+		if ($goodcred) {
 			
-			fwrite ( STDOUT, "ERR\n" );
-		} else {
 			// connection passed
 			
 			// start Logreader
+			
 			try {
 				$reader = LogReader::start ();
-			} catch (Exception $e) {
+			} catch ( Exception $e ) {
 			}
-		
-			fwrite ( STDOUT,"OK\n");
+			fwrite ( STDOUT, "OK\n" );
+		} else {
+			
+			fwrite ( STDOUT, "ERR\n" );
 		}
-		fflush(STDOUT);
-	} 
+	}
+	
+	fflush(STDIN);
+	fflush(STDOUT);
 }
 /**
- * @param String $username
- * @param String $password
+ *
+ * @param String $username        	
+ * @param String $password        	
  * @return boolean : false if no user found else ture
  */
 function successLogIn($username, $password) {
@@ -52,11 +58,15 @@ function successLogIn($username, $password) {
 			"username" => $username,
 			"password" => $password 
 	);
-	
-	$login = CallAPI::sample ( $data );
-	if ($login->status === "ok" && count ( $login->member ) === 1) {
-		return true;
-	} else {
+	try {
+		
+		$login = CallAPI::sample ( $data );
+		if ($login->status === "ok" && count ( $login->member ) === 1) {
+			return true;
+		} else {
+			return false;
+		}
+	} catch ( Exception $e ) {
 		return false;
 	}
 }
