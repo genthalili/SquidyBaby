@@ -7,7 +7,7 @@
 
 class CallAPI {
 	//public static $PATH_TO_API = "http://localhost/SquidyBaby/API/";
-	public static $PATH_TO_API = "http://dicodraw.com/API/index.php";
+	public static $PATH_TO_API = "http://dicodraw.com/API/";
 	
 	function __construct() {
 	}

@@ -178,10 +178,10 @@ while ( ! feof ( STDIN ) ) {
 			
 		}else if(($restrictionsVol !=NULL && 
 				$restrictionsVol->status ==="error" &&
-				 $restrictionsVol->msg ==="User is unknown")
+				 ($restrictionsVol->msg ==="User is unknown" || $restrictionsVol->msg ==="Cannot restrictions"))
 				 || ($restrictionsQ !=NULL && 
 				$restrictionsQ->status ==="error" &&
-				 $restrictionsQ->msg ==="User is unknown")){
+				 ($restrictionsQ->msg ==="Cannot restrictions" || $restrictionsQ->msg ==="Cannot restrictions"))){
 			fwrite ( STDOUT, $OK_RESP."\n" ); // deny access
 		}else{
 			//if not un user 
